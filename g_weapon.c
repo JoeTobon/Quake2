@@ -272,6 +272,12 @@ void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int k
 {
 	int		i;
 
+	//used to select character winston
+	gclient_t *client;
+
+	client = self->client;
+	client->pers.winston = true;
+
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
 }
@@ -328,13 +334,12 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	edict_t	*bolt;
 	trace_t	tr;
 
-	/*
+	//Used for character selection Genji
 	gclient_t *client;
-
 
 	client = self->client;
 	client->pers.genji = true;
-	*/
+	
 
 	VectorNormalize (dir);
 
@@ -477,6 +482,12 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	edict_t	*grenade;
 	vec3_t	dir;
 	vec3_t	forward, right, up;
+
+	//Used for character selection parah
+	gclient_t *client;
+
+	client = self->client;
+	client->pers.parah = true;
 
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);

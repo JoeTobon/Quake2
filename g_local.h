@@ -847,6 +847,8 @@ typedef struct
 
 	//used for character selection
 	qboolean	genji;  
+	qboolean	parah;
+	qboolean	winston;
 
 } client_persistant_t;
 

@@ -589,10 +589,14 @@ void InitClientPersistant (gclient_t *client)
 {
 	gitem_t		*item;
 
+	//used for character select
 	qboolean	gengi;
+	qboolean	parah;
+	qboolean	winston;
 
-	gengi = client->pers.genji;
-
+	gengi   = client->pers.genji;
+	parah   = client->pers.parah;
+	winston = client->pers.winston;
 
 	memset (&client->pers, 0, sizeof(client->pers));
 
@@ -615,7 +619,9 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.connected = true;
 
 	//sets character modes as false in the begining
-	client->pers.genji = false;
+	client->pers.genji   = false;
+	client->pers.parah   = false;
+	client->pers.winston = false;
 }
 
 
@@ -1209,7 +1215,9 @@ void PutClientInServer (edict_t *ent)
 	VectorCopy (ent->s.origin, ent->s.old_origin);
 
 	//not a character when spawning
-	client->pers.genji = false;
+	client->pers.genji   = false;
+	client->pers.parah   = false;
+	client->pers.winston = false;
 
 	// set the delta angle
 	for (i=0 ; i<3 ; i++)
@@ -1768,6 +1776,11 @@ void ClientBeginServerFrame (edict_t *ent)
 	//informs which character the player currently
 	if(client->pers.genji)
 		gi.centerprintf(ent, "Genji Selected");
+	if(client->pers.parah)
+		gi.centerprintf(ent, "Parah Selected");
+	if(client->pers.winston)
+		gi.centerprintf(ent, "Winston Selected");
+
 
 
 	if (deathmatch->value &&
