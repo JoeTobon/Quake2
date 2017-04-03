@@ -844,6 +844,10 @@ typedef struct
 	int			helpchanged;
 
 	qboolean	spectator;			// client is a spectator
+
+	//used for character selection
+	qboolean	genji;  
+
 } client_persistant_t;
 
 // client data that stays across deathmatch respawns

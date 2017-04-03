@@ -589,6 +589,11 @@ void InitClientPersistant (gclient_t *client)
 {
 	gitem_t		*item;
 
+	qboolean	gengi;
+
+	gengi = client->pers.genji;
+
+
 	memset (&client->pers, 0, sizeof(client->pers));
 
 	item = FindItem("Blaster");
@@ -608,6 +613,9 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.max_slugs		= 50;
 
 	client->pers.connected = true;
+
+	//sets character modes as false in the begining
+	client->pers.genji = false;
 }
 
 
@@ -1200,6 +1208,9 @@ void PutClientInServer (edict_t *ent)
 	ent->s.origin[2] += 1;	// make sure off ground
 	VectorCopy (ent->s.origin, ent->s.old_origin);
 
+	//not a character when spawning
+	client->pers.genji = false;
+
 	// set the delta angle
 	for (i=0 ; i<3 ; i++)
 	{
@@ -1248,6 +1259,7 @@ deathmatch mode, so clear everything out before starting them.
 */
 void ClientBeginDeathmatch (edict_t *ent)
 {
+	gclient_t *client;
 	G_InitEdict (ent);
 
 	InitClientResp (ent->client);
@@ -1752,6 +1764,11 @@ void ClientBeginServerFrame (edict_t *ent)
 		return;
 
 	client = ent->client;
+
+	//informs which character the player currently
+	if(client->pers.genji)
+		gi.centerprintf(ent, "Genji Selected");
+
 
 	if (deathmatch->value &&
 		client->pers.spectator != client->resp.spectator &&
