@@ -590,11 +590,11 @@ void InitClientPersistant (gclient_t *client)
 	gitem_t		*item;
 
 	//used for character select
-	qboolean	gengi;
+	qboolean	genji;
 	qboolean	parah;
 	qboolean	winston;
 
-	gengi   = client->pers.genji;
+	genji   = client->pers.genji;
 	parah   = client->pers.parah;
 	winston = client->pers.winston;
 
