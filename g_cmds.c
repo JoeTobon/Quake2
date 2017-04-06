@@ -914,22 +914,47 @@ void Cmd_jumpJet(edict_t *ent)
 
 	if(ent->groundentity && ent->client->pers.parah)
 	{
-		ent->client->pers.doubleJump = true;
+		ent->client->pers.jumpJet = true;
 	}
 	else
 	{
-		ent->client->pers.doubleJump = false;
+		ent->client->pers.jumpJet = false;
 	}
 
-	//if jump jet is true enables you to jump again
+	//if jump jet is true enables you to jump jet
 	if(ent->client->pers.jumpJet == true)
 	{
 		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
 		VectorScale(launch, launchHeight, launch); 
 		VectorAdd(launch, ent->velocity, ent->velocity); 
-		ent->client->pers.doubleJump = false;
+		ent->client->pers.jumpJet = false;
 	}
 }
+
+//Parah's jet pack command (enabels her to hover in the air)
+void Cmd_jetPack(edict_t *ent)
+{
+	vec3_t forward, right;
+	vec3_t pack_pos, jet_vector;
+
+	//adds jetpack to parah  ent->client->pers.jetPack = true) //&&
+	if(ent->client->pers.parah)
+	{
+		if(ent->velocity[2] < -500)
+		{
+			ent->velocity[2]+=((ent->velocity[2])/(-5));
+		}
+		else if(ent->velocity[2] < 0)
+		{
+			ent->velocity[2] += 100; 
+		}
+		else
+		{
+			ent->velocity[2]+=((1000-ent->velocity[2])/4);
+		}
+	}
+}
+
 
 /*
 =================
@@ -1022,6 +1047,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_DoubleJump(ent);
 	else if (Q_stricmp(cmd, "jumpJet") == 0) //Call command for doubleJump
 		Cmd_jumpJet(ent);
+	else if (Q_stricmp(cmd, "jetPack") == 0)
+		Cmd_jetPack(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

@@ -850,11 +850,12 @@ typedef struct
 	qboolean	parah;
 	qboolean	winston;
 
-	//double jump
+	//genji double jump
 	qboolean	doubleJump;
 
-	//thrust up
+	//parah thrust up and jet pack
 	qboolean	jumpJet;
+	qboolean	jetPack;
 
 } client_persistant_t;
 

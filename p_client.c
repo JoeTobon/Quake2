@@ -628,6 +628,9 @@ void InitClientPersistant (gclient_t *client)
 
 	//initializes jumpJet to false at start
 	client->pers.jumpJet = false;
+
+	//Initializes jetPack to false at start
+	client->pers.jetPack = false;
 }
 
 
@@ -1231,6 +1234,9 @@ void PutClientInServer (edict_t *ent)
 	//not allowed to jumpJet at the start
 	client->pers.jumpJet = false;
 
+	//jetpack not allowed at start
+	client->pers.jetPack = false;
+
 	// set the delta angle
 	for (i=0 ; i<3 ; i++)
 	{
@@ -1812,6 +1818,17 @@ void ClientBeginServerFrame (edict_t *ent)
 	{
 		ent->client->pers.jumpJet = false; 
 	}
+
+	//Sets jetPack to true if parah
+	if(ent->client->pers.parah)
+	{
+		ent->client->pers.jetPack = true; 
+	}
+	else 
+	{
+		ent->client->pers.jetPack = false; 
+	}
+
 
 	if (deathmatch->value &&
 		client->pers.spectator != client->resp.spectator &&
