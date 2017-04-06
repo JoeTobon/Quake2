@@ -850,6 +850,12 @@ typedef struct
 	qboolean	parah;
 	qboolean	winston;
 
+	//double jump
+	qboolean	doubleJump;
+
+	//thrust up
+	qboolean	jumpJet;
+
 } client_persistant_t;
 
 // client data that stays across deathmatch respawns

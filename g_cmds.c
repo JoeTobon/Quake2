@@ -880,6 +880,56 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+//Genji's double jump command
+void Cmd_DoubleJump(edict_t *ent)
+{
+	float  jumpHeight = 350;
+	vec3_t jumpUp;
+
+	//sets double jump varible to true if player is on ground and genji
+	if(ent->groundentity && ent->client->pers.genji)
+	{
+		ent->client->pers.doubleJump = true;
+	}
+	else if(!ent->client->pers.genji)
+	{
+		ent->client->pers.doubleJump = false;
+	}
+
+	//if double jump is true enables you to jump again
+	if(ent->client->pers.doubleJump == true)
+	{
+		AngleVectors(ent->client->v_angle, NULL, NULL, jumpUp); 
+		VectorScale(jumpUp, jumpHeight, jumpUp); 
+		VectorAdd(jumpUp, ent->velocity, ent->velocity); 
+		ent->client->pers.doubleJump = false;
+	}
+}
+
+//Parah's jump jet command (launches her in air)
+void Cmd_jumpJet(edict_t *ent)
+{
+	float launchHeight = 700;
+	vec3_t launch;
+
+	if(ent->groundentity && ent->client->pers.parah)
+	{
+		ent->client->pers.doubleJump = true;
+	}
+	else
+	{
+		ent->client->pers.doubleJump = false;
+	}
+
+	//if jump jet is true enables you to jump again
+	if(ent->client->pers.jumpJet == true)
+	{
+		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
+		VectorScale(launch, launchHeight, launch); 
+		VectorAdd(launch, ent->velocity, ent->velocity); 
+		ent->client->pers.doubleJump = false;
+	}
+}
 
 /*
 =================
@@ -968,6 +1018,10 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
+	else if (Q_stricmp(cmd, "doubleJump") == 0) //Call command for doubleJump
+		Cmd_DoubleJump(ent);
+	else if (Q_stricmp(cmd, "jumpJet") == 0) //Call command for doubleJump
+		Cmd_jumpJet(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

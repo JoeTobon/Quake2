@@ -622,6 +622,12 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.genji   = false;
 	client->pers.parah   = false;
 	client->pers.winston = false;
+
+	//initializes double jump to false at start
+	client->pers.doubleJump = false;
+
+	//initializes jumpJet to false at start
+	client->pers.jumpJet = false;
 }
 
 
@@ -1219,6 +1225,12 @@ void PutClientInServer (edict_t *ent)
 	client->pers.parah   = false;
 	client->pers.winston = false;
 
+	//not allowed to double jump at the start
+	client->pers.doubleJump = false;
+
+	//not allowed to jumpJet at the start
+	client->pers.jumpJet = false;
+
 	// set the delta angle
 	for (i=0 ; i<3 ; i++)
 	{
@@ -1781,7 +1793,25 @@ void ClientBeginServerFrame (edict_t *ent)
 	if(client->pers.winston)
 		gi.centerprintf(ent, "Winston Selected");
 
+	//Sets doubleJump to true if on ground
+	if(ent->groundentity && ent->client->pers.genji) 
+ 	{ 
+		ent->client->pers.doubleJump = true; 
+ 	}
+	else if(!ent->client->pers.genji)
+	{
+		ent->client->pers.doubleJump = false; 
+	}
 
+	//Sets jumpJet to true if on ground and parah
+	if(ent->groundentity && ent->client->pers.parah)
+	{
+		ent->client->pers.jumpJet = true; 
+	}
+	else 
+	{
+		ent->client->pers.jumpJet = false; 
+	}
 
 	if (deathmatch->value &&
 		client->pers.spectator != client->resp.spectator &&
