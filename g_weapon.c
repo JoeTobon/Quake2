@@ -268,15 +268,17 @@ fire_shotgun
 Shoots shotgun pellets.  Used by shotgun and super shotgun.
 =================
 */
+
+//+ Added code for mod in this function- Joe
 void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod)
 {
 	int		i;
 
-	//used to select character winston
+	//+ used to select character winston
 	gclient_t *client;
 	client = self->client;
 
-	//Cannot switch characters once one selected till death
+	//+ Cannot switch characters once one selected till death
 	if(client->pers.parah == false && client->pers.genji == false)
 	{
 		client->pers.winston = true;
@@ -333,16 +335,17 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	G_FreeEdict (self);
 }
 
+//+ Added code for mod in this function- Joe
 void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int effect, qboolean hyper)
 {
 	edict_t	*bolt;
 	trace_t	tr;
 
-	//Used for character selection Genji
+	//+ Used for character selection Genji
 	gclient_t *client;
 	client = self->client;
 
-	//Cannot switch characters once one is selected until death
+	//+ Cannot switch characters once one is selected until death
 	if(client->pers.parah == false && client->pers.winston == false)
 	{
 		client->pers.genji = true;
@@ -485,17 +488,18 @@ static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurfa
 	Grenade_Explode (ent);
 }
 
+//+ Added code for mod in this function
 void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
 {
 	edict_t	*grenade;
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
-	//Used for character selection parah
+	//+ Used for character selection parah
 	gclient_t *client;
 	client = self->client;
 
-	//Cannot switch characters once one is selected until death
+	//+ Cannot switch characters once one is selected until death
 	if(client->pers.genji == false && client->pers.winston == false)
 	{
 		client->pers.parah = true;

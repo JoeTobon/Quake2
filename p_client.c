@@ -585,11 +585,15 @@ This is only called when the game first initializes in single player,
 but is called after each death and level change in deathmatch
 ==============
 */
+
+//+ Added code for mod- Joe
 void InitClientPersistant (gclient_t *client)
 {
 	gitem_t		*item;
+	gitem_t		*it;
+	int i, index;
 
-	//used for character select
+	//+ used for character selection
 	qboolean	genji;
 	qboolean	parah;
 	qboolean	winston;
@@ -597,6 +601,7 @@ void InitClientPersistant (gclient_t *client)
 	genji   = client->pers.genji;
 	parah   = client->pers.parah;
 	winston = client->pers.winston;
+	//
 
 	memset (&client->pers, 0, sizeof(client->pers));
 
@@ -618,19 +623,49 @@ void InitClientPersistant (gclient_t *client)
 
 	client->pers.connected = true;
 
-	//sets character modes as false in the begining
+	//+ gives player shotgun at the start for character selection
+	item = FindItem("Shotgun");
+	client->pers.selected_item = ITEM_INDEX(item);
+	client->pers.inventory[client->pers.selected_item] = 1;
+
+	//+ gives player grenade launcher at the start for character selection
+	item = FindItem("Grenade Launcher");
+	client->pers.selected_item = ITEM_INDEX(item);
+	client->pers.inventory[client->pers.selected_item] = 1;
+
+	//+ gives player shotgun ammo 
+	item = FindItem("Shells");
+	for (i=0 ; i<game.num_items ; i++)
+	{
+		if (item)
+		{
+			index = ITEM_INDEX(item);
+			client->pers.inventory[index] += item->quantity;
+			if (client->pers.inventory[index] > client->pers.max_shells)
+				client->pers.inventory[index] = client->pers.max_shells;
+		}
+	}
+
+	//+ gives player grenade ammo
+	item = FindItem("Grenades");
+	if (item)
+	{
+		index = ITEM_INDEX(item);
+		client->pers.inventory[index] += item->quantity;
+		if (client->pers.inventory[index] > client->pers.max_grenades)
+			client->pers.inventory[index] = client->pers.max_grenades;
+	}
+
+	//+ sets character modes as false in the begining
 	client->pers.genji   = false;
 	client->pers.parah   = false;
 	client->pers.winston = false;
 
-	//initializes double jump to false at start
+	//+ initializes double jump to false at start
 	client->pers.doubleJump = false;
 
-	//initializes jumpJet to false at start
+	//+ initializes jumpJet to false at start
 	client->pers.jumpJet = false;
-
-	//Initializes jetPack to false at start
-	client->pers.jetPack = false;
 }
 
 
@@ -1098,6 +1133,8 @@ Called when a player connects to a server or respawns in
 a deathmatch.
 ============
 */
+
+//+ Added code for mod in this function- Joe
 void PutClientInServer (edict_t *ent)
 {
 	vec3_t	mins = {-16, -16, -24};
@@ -1223,19 +1260,18 @@ void PutClientInServer (edict_t *ent)
 	ent->s.origin[2] += 1;	// make sure off ground
 	VectorCopy (ent->s.origin, ent->s.old_origin);
 
-	//not a character when spawning
+	
+
+	//+ not a character when spawning
 	client->pers.genji   = false;
 	client->pers.parah   = false;
 	client->pers.winston = false;
 
-	//not allowed to double jump at the start
+	//+ not allowed to double jump at the start
 	client->pers.doubleJump = false;
 
-	//not allowed to jumpJet at the start
+	//+ not allowed to jumpJet at the start
 	client->pers.jumpJet = false;
-
-	//jetpack not allowed at start
-	client->pers.jetPack = false;
 
 	// set the delta angle
 	for (i=0 ; i<3 ; i++)
@@ -1781,6 +1817,8 @@ This will be called once for each server frame, before running
 any other entities in the world.
 ==============
 */
+
+//+ Added code for mod in this function- Joe
 void ClientBeginServerFrame (edict_t *ent)
 {
 	gclient_t	*client;
@@ -1791,7 +1829,10 @@ void ClientBeginServerFrame (edict_t *ent)
 
 	client = ent->client;
 
-	//informs which character the player currently
+	
+	
+
+	//+ informs which character the player currently
 	if(client->pers.genji)
 		gi.centerprintf(ent, "Genji Selected");
 	if(client->pers.parah)
@@ -1799,7 +1840,7 @@ void ClientBeginServerFrame (edict_t *ent)
 	if(client->pers.winston)
 		gi.centerprintf(ent, "Winston Selected");
 
-	//Sets doubleJump to true if on ground
+	//+ Sets doubleJump to true if on ground
 	if(ent->groundentity && ent->client->pers.genji) 
  	{ 
 		ent->client->pers.doubleJump = true; 
@@ -1809,7 +1850,7 @@ void ClientBeginServerFrame (edict_t *ent)
 		ent->client->pers.doubleJump = false; 
 	}
 
-	//Sets jumpJet to true if on ground and parah
+	//+ Sets jumpJet to true if on ground and parah
 	if(ent->groundentity && ent->client->pers.parah)
 	{
 		ent->client->pers.jumpJet = true; 
@@ -1818,17 +1859,6 @@ void ClientBeginServerFrame (edict_t *ent)
 	{
 		ent->client->pers.jumpJet = false; 
 	}
-
-	//Sets jetPack to true if parah
-	if(ent->client->pers.parah)
-	{
-		ent->client->pers.jetPack = true; 
-	}
-	else 
-	{
-		ent->client->pers.jetPack = false; 
-	}
-
 
 	if (deathmatch->value &&
 		client->pers.spectator != client->resp.spectator &&

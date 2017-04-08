@@ -809,6 +809,7 @@ void GetChaseTarget(edict_t *ent);
 
 
 // client data that stays across multiple level loads
+//+ Added code for Mod in this function- Joe 
 typedef struct
 {
 	char		userinfo[MAX_INFO_STRING];
@@ -845,17 +846,16 @@ typedef struct
 
 	qboolean	spectator;			// client is a spectator
 
-	//used for character selection
+	//+ used for character selection
 	qboolean	genji;  
 	qboolean	parah;
 	qboolean	winston;
 
-	//genji double jump
+	//+ genji double jump
 	qboolean	doubleJump;
 
-	//parah thrust up and jet pack
+	//+ parah thrust up
 	qboolean	jumpJet;
-	qboolean	jetPack;
 
 } client_persistant_t;
 

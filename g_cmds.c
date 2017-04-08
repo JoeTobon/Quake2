@@ -880,13 +880,13 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
-//Genji's double jump command
+//+ Genji's double jump command
 void Cmd_DoubleJump(edict_t *ent)
 {
 	float  jumpHeight = 350;
 	vec3_t jumpUp;
 
-	//sets double jump varible to true if player is on ground and genji
+	//sets double jump varible to true if player is off ground and genji
 	if(ent->groundentity && ent->client->pers.genji)
 	{
 		ent->client->pers.doubleJump = true;
@@ -897,7 +897,7 @@ void Cmd_DoubleJump(edict_t *ent)
 	}
 
 	//if double jump is true enables you to jump again
-	if(ent->client->pers.doubleJump == true)
+	if(ent->client->pers.doubleJump == true && !ent->groundentity)
 	{
 		AngleVectors(ent->client->v_angle, NULL, NULL, jumpUp); 
 		VectorScale(jumpUp, jumpHeight, jumpUp); 
@@ -906,7 +906,7 @@ void Cmd_DoubleJump(edict_t *ent)
 	}
 }
 
-//Parah's jump jet command (launches her in air)
+//+ Parah's jump jet command (launches her in air)
 void Cmd_jumpJet(edict_t *ent)
 {
 	float launchHeight = 700;
@@ -922,22 +922,26 @@ void Cmd_jumpJet(edict_t *ent)
 	}
 
 	//if jump jet is true enables you to jump jet
-	if(ent->client->pers.jumpJet == true)
+	if(ent->client->pers.jumpJet == true && ent->client->pers.parah)
 	{
 		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
 		VectorScale(launch, launchHeight, launch); 
 		VectorAdd(launch, ent->velocity, ent->velocity); 
+		gi.sound (ent, CHAN_BODY, gi.soundindex("weapons/rockfly.wav"), 1, ATTN_NORM, 0);
 		ent->client->pers.jumpJet = false;
 	}
 }
 
-//Parah's jet pack command (enabels her to hover in the air)
+//+ Parah's jet pack command (enabels her to hover in the air)
 void Cmd_jetPack(edict_t *ent)
 {
 	vec3_t forward, right;
 	vec3_t pack_pos, jet_vector;
+	qboolean jpSound;
 
-	//adds jetpack to parah  ent->client->pers.jetPack = true) //&&
+	jpSound = true;
+
+	//adds jetpack to parah
 	if(ent->client->pers.parah)
 	{
 		if(ent->velocity[2] < -500)
@@ -953,6 +957,32 @@ void Cmd_jetPack(edict_t *ent)
 			ent->velocity[2]+=((1000-ent->velocity[2])/4);
 		}
 	}
+
+	//add sparks
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorScale (forward, -7, pack_pos);
+	VectorAdd (pack_pos, ent->s.origin, pack_pos);
+	pack_pos[2] += (ent->viewheight);
+
+	VectorScale (forward, -50, jet_vector);
+
+	gi.WriteByte (svc_temp_entity);
+	gi.WriteByte (TE_SPARKS);
+	gi.WritePosition (pack_pos);
+	gi.WriteDir (jet_vector);
+	gi.multicast (pack_pos, MULTICAST_PVS);
+
+	//add sound when using a jetpack
+	if(jpSound && ent->client->pers.parah)
+	{
+		gi.sound (ent, CHAN_BODY, gi.soundindex("weapons/rockfly.wav"), .5, ATTN_NORM, 0);
+	}
+
+	if(ent->groundentity)
+	{
+		jpSound = false;
+	}
+
 }
 
 
@@ -1043,11 +1073,11 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
-	else if (Q_stricmp(cmd, "doubleJump") == 0) //Call command for doubleJump
+	else if (Q_stricmp(cmd, "doubleJump") == 0) //+ Call command for doubleJump
 		Cmd_DoubleJump(ent);
-	else if (Q_stricmp(cmd, "jumpJet") == 0) //Call command for doubleJump
+	else if (Q_stricmp(cmd, "jumpJet") == 0) //+ Call command for jumpJet
 		Cmd_jumpJet(ent);
-	else if (Q_stricmp(cmd, "jetPack") == 0)
+	else if (Q_stricmp(cmd, "jetPack") == 0) //+ Call commane for jetPack
 		Cmd_jetPack(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
