@@ -906,6 +906,26 @@ void Cmd_DoubleJump(edict_t *ent)
 	}
 }
 
+//+ Genji's dash command
+void Cmd_Dash(edict_t *ent)
+{
+	vec3_t	forward;
+	qboolean dash;
+
+	if(ent->client->pers.genji == true)
+	{
+		dash = true;
+	}
+
+	if(ent->groundentity && dash == true)
+	{
+		AngleVectors(ent->client->v_angle, forward, NULL, NULL); 
+		VectorScale(forward, 550, forward); 
+		VectorAdd(forward, ent->velocity, ent->velocity); 
+		dash = false;
+	}
+}
+
 //+ Parah's jump jet command (launches her in air)
 void Cmd_jumpJet(edict_t *ent)
 {
@@ -1075,6 +1095,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_PlayerList_f(ent);
 	else if (Q_stricmp(cmd, "doubleJump") == 0) //+ Call command for doubleJump
 		Cmd_DoubleJump(ent);
+	else if (Q_stricmp(cmd, "dash") == 0) //+ Call command for dash
+		Cmd_Dash(ent);
 	else if (Q_stricmp(cmd, "jumpJet") == 0) //+ Call command for jumpJet
 		Cmd_jumpJet(ent);
 	else if (Q_stricmp(cmd, "jetPack") == 0) //+ Call commane for jetPack
