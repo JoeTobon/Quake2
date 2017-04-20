@@ -795,11 +795,12 @@ BLASTER / HYPERBLASTER
 ======================================================================
 */
 
-void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, int effect)
+void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, int effect, qboolean r, qboolean l)
 {
 	vec3_t	forward, right;
 	vec3_t	start;
 	vec3_t	offset;
+	vec3_t  offRight, offLeft;
 
 	if (is_quad)
 		damage *= 4;
@@ -811,7 +812,25 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	//used in genji's blaster spread
+	VectorAdd(forward, right, offRight);
+	VectorSubtract(forward, right, offLeft);
+
+	VectorAdd(offRight, forward, offRight);
+	VectorAdd(forward, offLeft, offLeft);
+
+	if(r == true)
+	{
+		fire_blaster (ent, start, offRight, damage, 1000, effect, hyper);
+	}
+	else if(l == true)
+	{
+		fire_blaster (ent, start, offLeft, damage, 1000, effect, hyper);
+	}
+	else
+	{
+		fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	}
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -834,9 +853,19 @@ void Weapon_Blaster_Fire (edict_t *ent)
 		damage = 15;
 	else
 		damage = 10;
-	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER);
+	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, false);
+	
+	if(ent->client->pers.genji)
+	{
+		//Adds two new blaster bolts 
+		Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, true, false);
+
+		Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, true);
+	}
+
 	ent->client->ps.gunframe++;
 }
+
 
 void Weapon_Blaster (edict_t *ent)
 {
@@ -886,7 +915,7 @@ void Weapon_HyperBlaster_Fire (edict_t *ent)
 				damage = 15;
 			else
 				damage = 20;
-			Blaster_Fire (ent, offset, damage, true, effect);
+			Blaster_Fire (ent, offset, damage, true, effect, false, false);
 			if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
 				ent->client->pers.inventory[ent->client->ammo_index]--;
 

@@ -595,11 +595,11 @@ void InitClientPersistant (gclient_t *client)
 
 	//+ used for character selection
 	qboolean	genji;
-	qboolean	parah;
+	qboolean	pharah;
 	qboolean	winston;
 
 	genji   = client->pers.genji;
-	parah   = client->pers.parah;
+	pharah   = client->pers.pharah;
 	winston = client->pers.winston;
 	//
 
@@ -658,7 +658,7 @@ void InitClientPersistant (gclient_t *client)
 
 	//+ sets character modes as false in the begining
 	client->pers.genji   = false;
-	client->pers.parah   = false;
+	client->pers.pharah   = false;
 	client->pers.winston = false;
 
 	//+ initializes double jump to false at start
@@ -1264,7 +1264,7 @@ void PutClientInServer (edict_t *ent)
 
 	//+ not a character when spawning
 	client->pers.genji   = false;
-	client->pers.parah   = false;
+	client->pers.pharah   = false;
 	client->pers.winston = false;
 
 	//+ not allowed to double jump at the start
@@ -1835,8 +1835,8 @@ void ClientBeginServerFrame (edict_t *ent)
 	//+ informs which character the player currently
 	if(client->pers.genji)
 		gi.centerprintf(ent, "Genji Selected");
-	if(client->pers.parah)
-		gi.centerprintf(ent, "Parah Selected");
+	if(client->pers.pharah)
+		gi.centerprintf(ent, "Pharah Selected");
 	if(client->pers.winston)
 		gi.centerprintf(ent, "Winston Selected");
 
@@ -1850,8 +1850,8 @@ void ClientBeginServerFrame (edict_t *ent)
 		ent->client->pers.doubleJump = false; 
 	}
 
-	//+ Sets jumpJet to true if on ground and parah
-	if(ent->groundentity && ent->client->pers.parah)
+	//+ Sets jumpJet to true if on ground and pharah
+	if(ent->groundentity && ent->client->pers.pharah)
 	{
 		ent->client->pers.jumpJet = true; 
 	}

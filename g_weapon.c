@@ -279,7 +279,7 @@ void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int k
 	client = self->client;
 
 	//+ Cannot switch characters once one selected till death
-	if(client->pers.parah == false && client->pers.genji == false)
+	if(client->pers.pharah == false && client->pers.genji == false)
 	{
 		client->pers.winston = true;
 	}
@@ -346,7 +346,7 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	client = self->client;
 
 	//+ Cannot switch characters once one is selected until death
-	if(client->pers.parah == false && client->pers.winston == false)
+	if(client->pers.pharah == false && client->pers.winston == false)
 	{
 		client->pers.genji = true;
 	}
@@ -393,7 +393,6 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 		bolt->touch (bolt, tr.ent, NULL, NULL);
 	}
 }	
-
 
 /*
 =================
@@ -457,6 +456,62 @@ static void Grenade_Explode (edict_t *ent)
 	G_FreeEdict (ent);
 }
 
+/*
+=================
+++fire cluster grenade
+=================
+*/
+static void Cluster_Explode (edict_t *ent)
+{
+	vec3_t		origin;
+
+	//added these 3 vectors
+	vec3_t   grenade1;
+	vec3_t   grenade2;
+	vec3_t   grenade3;
+
+	qboolean temp;
+	temp = true;
+
+	if (ent->owner->client)
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+
+	//FIXME: if we are onground then raise our Z just a bit since we are a point?
+	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, NULL);
+
+	VectorMA (ent->s.origin, -0.02, ent->velocity, origin);
+	gi.WriteByte (svc_temp_entity);
+	if (ent->waterlevel)
+	{
+		if (ent->groundentity)
+			gi.WriteByte (TE_GRENADE_EXPLOSION_WATER);
+		else
+			gi.WriteByte (TE_ROCKET_EXPLOSION_WATER);
+	}
+	else
+	{
+		if (ent->groundentity)
+			gi.WriteByte (TE_GRENADE_EXPLOSION);
+		else
+			gi.WriteByte (TE_ROCKET_EXPLOSION);
+	}
+	gi.WritePosition (origin);
+	gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+	//give grenades up/outwards velocities
+	VectorSet(grenade1,20,20,40);
+	VectorSet(grenade2,20,-20,40);
+	VectorSet(grenade3,-20,20,40);
+
+	//explode the four grenades outwards
+	//Fires hand grenades so grenades are not infinitely spawned
+	fire_grenade2(ent, origin, grenade1, 120, 10, 1.0, 120, temp);
+	fire_grenade2(ent, origin, grenade2, 120, 10, 1.0, 120, temp);
+	fire_grenade2(ent, origin, grenade3, 120, 10, 1.0, 120,temp);
+
+	G_FreeEdict (ent);
+}
+
 static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)
@@ -495,14 +550,14 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
-	//+ Used for character selection parah
+	//+ Used for character selection pharah
 	gclient_t *client;
 	client = self->client;
 
 	//+ Cannot switch characters once one is selected until death
 	if(client->pers.genji == false && client->pers.winston == false)
 	{
-		client->pers.parah = true;
+		client->pers.pharah = true;
 	}
 
 	vectoangles (aimdir, dir);
@@ -524,7 +579,16 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
-	grenade->think = Grenade_Explode;
+	
+	if(client->pers.pharah == true)
+	{
+		grenade->think = Cluster_Explode;
+	}
+	else
+	{
+		grenade->think = Grenade_Explode;
+	}
+
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
 	grenade->classname = "grenade";

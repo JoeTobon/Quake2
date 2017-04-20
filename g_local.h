@@ -848,13 +848,13 @@ typedef struct
 
 	//+ used for character selection
 	qboolean	genji;  
-	qboolean	parah;
+	qboolean	pharah;
 	qboolean	winston;
 
 	//+ genji double jump
 	qboolean	doubleJump;
 
-	//+ parah thrust up
+	//+ pharah thrust up
 	qboolean	jumpJet;
 
 } client_persistant_t;

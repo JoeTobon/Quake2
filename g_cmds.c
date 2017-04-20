@@ -926,33 +926,29 @@ void Cmd_Dash(edict_t *ent)
 	}
 }
 
-//+ Parah's jump jet command (launches her in air)
+//+ Pharah's jump jet command (launches her in air)
 void Cmd_jumpJet(edict_t *ent)
 {
-	float launchHeight = 700;
-	vec3_t launch;
+	float  jumpHeight = 700;
+	vec3_t leap;
 
-	if(ent->groundentity && ent->client->pers.parah)
+	//sets jet jump varible to true if player is off ground and genji
+	if(ent->client->pers.pharah)
 	{
 		ent->client->pers.jumpJet = true;
 	}
-	else
-	{
-		ent->client->pers.jumpJet = false;
-	}
 
-	//if jump jet is true enables you to jump jet
-	if(ent->client->pers.jumpJet == true && ent->client->pers.parah)
+	//if jet jump is true enables you to jump again
+	if(ent->client->pers.jumpJet == true && !ent->groundentity)
 	{
-		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
-		VectorScale(launch, launchHeight, launch); 
-		VectorAdd(launch, ent->velocity, ent->velocity); 
-		gi.sound (ent, CHAN_BODY, gi.soundindex("weapons/rockfly.wav"), 1, ATTN_NORM, 0);
+		AngleVectors(ent->client->v_angle, NULL, NULL, leap); 
+		VectorScale(leap, jumpHeight, leap); 
+		VectorAdd(leap, ent->velocity, ent->velocity); 
 		ent->client->pers.jumpJet = false;
 	}
 }
 
-//+ Parah's jet pack command (enabels her to hover in the air)
+//+ Pharah's jet pack command (enabels her to hover in the air)
 void Cmd_jetPack(edict_t *ent)
 {
 	vec3_t forward, right;
@@ -961,8 +957,8 @@ void Cmd_jetPack(edict_t *ent)
 
 	jpSound = true;
 
-	//adds jetpack to parah
-	if(ent->client->pers.parah)
+	//adds jetpack to pharah
+	if(ent->client->pers.pharah)
 	{
 		if(ent->velocity[2] < -500)
 		{
@@ -993,7 +989,7 @@ void Cmd_jetPack(edict_t *ent)
 	gi.multicast (pack_pos, MULTICAST_PVS);
 
 	//add sound when using a jetpack
-	if(jpSound && ent->client->pers.parah)
+	if(jpSound && ent->client->pers.pharah)
 	{
 		gi.sound (ent, CHAN_BODY, gi.soundindex("weapons/rockfly.wav"), .5, ATTN_NORM, 0);
 	}
@@ -1005,6 +1001,19 @@ void Cmd_jetPack(edict_t *ent)
 
 }
 
+void Cmd_Leap(edict_t *ent)
+{
+	float leapHeight = 600;
+	vec3_t launch;
+
+	//if jump jet is true enables you to jump jet
+	if(ent->groundentity && ent->client->pers.winston)
+	{
+		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
+		VectorScale(launch, leapHeight, launch); 
+		VectorAdd(launch, ent->velocity, ent->velocity); 
+	}
+}
 
 /*
 =================
@@ -1101,6 +1110,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_jumpJet(ent);
 	else if (Q_stricmp(cmd, "jetPack") == 0) //+ Call commane for jetPack
 		Cmd_jetPack(ent);
+	else if (Q_stricmp(cmd, "leap") == 0)
+		Cmd_Leap(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }
