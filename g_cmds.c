@@ -926,24 +926,28 @@ void Cmd_Dash(edict_t *ent)
 	}
 }
 
-//+ Pharah's jump jet command (launches her in air)
+//+ Pharah's jump jet command (helps keep her in air)
 void Cmd_jumpJet(edict_t *ent)
 {
-	float  jumpHeight = 700;
-	vec3_t leap;
+	float  launchH = 600;
+	vec3_t thrustUp;
 
-	//sets jet jump varible to true if player is off ground and genji
-	if(ent->client->pers.pharah)
+	//sets double jump varible to true if player is off ground and genji
+	if(ent->groundentity && ent->client->pers.pharah)
 	{
 		ent->client->pers.jumpJet = true;
 	}
+	else if(!ent->client->pers.pharah)
+	{
+		ent->client->pers.jumpJet = false;
+	}
 
-	//if jet jump is true enables you to jump again
+	//if double jump is true enables you to jump again
 	if(ent->client->pers.jumpJet == true && !ent->groundentity)
 	{
-		AngleVectors(ent->client->v_angle, NULL, NULL, leap); 
-		VectorScale(leap, jumpHeight, leap); 
-		VectorAdd(leap, ent->velocity, ent->velocity); 
+		AngleVectors(ent->client->v_angle, NULL, NULL, thrustUp); 
+		VectorScale(thrustUp, launchH, thrustUp); 
+		VectorAdd(thrustUp, ent->velocity, ent->velocity); 
 		ent->client->pers.jumpJet = false;
 	}
 }

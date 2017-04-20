@@ -477,7 +477,7 @@ static void Cluster_Explode (edict_t *ent)
 		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
 
 	//FIXME: if we are onground then raise our Z just a bit since we are a point?
-	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, NULL);
+	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, 0);
 
 	VectorMA (ent->s.origin, -0.02, ent->velocity, origin);
 	gi.WriteByte (svc_temp_entity);

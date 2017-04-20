@@ -819,6 +819,9 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorAdd(offRight, forward, offRight);
 	VectorAdd(forward, offLeft, offLeft);
 
+	VectorAdd(offRight, forward, offRight);
+	VectorAdd(forward, offLeft, offLeft);
+
 	if(r == true)
 	{
 		fire_blaster (ent, start, offRight, damage, 1000, effect, hyper);
@@ -854,7 +857,8 @@ void Weapon_Blaster_Fire (edict_t *ent)
 	else
 		damage = 10;
 	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, false);
-	
+
+	//Genji's weapon spread
 	if(ent->client->pers.genji)
 	{
 		//Adds two new blaster bolts 
@@ -872,7 +876,23 @@ void Weapon_Blaster (edict_t *ent)
 	static int	pause_frames[]	= {19, 32, 0};
 	static int	fire_frames[]	= {5, 0};
 
-	Weapon_Generic (ent, 4, 8, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
+	int		damage;
+
+	if (deathmatch->value)
+		damage = 15;
+	else
+		damage = 10;
+
+	if(!ent->client->pers.genji)
+	{
+		Weapon_Generic (ent, 4, 8, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
+	}
+
+	//Genji's burst fire
+	if(ent->client->pers.genji)
+	{
+		Weapon_Generic (ent, 4, 6, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
+	}
 }
 
 

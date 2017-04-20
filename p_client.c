@@ -1850,12 +1850,12 @@ void ClientBeginServerFrame (edict_t *ent)
 		ent->client->pers.doubleJump = false; 
 	}
 
-	//+ Sets jumpJet to true if on ground and pharah
-	if(ent->groundentity && ent->client->pers.pharah)
-	{
+	//+ Sets jetJump to true if on ground
+	if(ent->groundentity && ent->client->pers.pharah) 
+ 	{ 
 		ent->client->pers.jumpJet = true; 
-	}
-	else 
+ 	}
+	else if(!ent->client->pers.pharah)
 	{
 		ent->client->pers.jumpJet = false; 
 	}
