@@ -858,14 +858,14 @@ void Weapon_Blaster_Fire (edict_t *ent)
 		damage = 10;
 	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, false);
 
-	//Genji's weapon spread
+	/*//Genji's weapon spread
 	if(ent->client->pers.genji)
 	{
 		//Adds two new blaster bolts 
 		Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, true, false);
 
 		Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, true);
-	}
+	}*/
 
 	ent->client->ps.gunframe++;
 }
@@ -888,7 +888,7 @@ void Weapon_Blaster (edict_t *ent)
 		Weapon_Generic (ent, 4, 8, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
 	}
 
-	//Genji's burst fire
+	//Enables Genji to fire faster
 	if(ent->client->pers.genji)
 	{
 		Weapon_Generic (ent, 4, 6, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
