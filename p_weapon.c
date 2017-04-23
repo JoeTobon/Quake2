@@ -544,7 +544,8 @@ void weapon_grenade_fire (edict_t *ent, qboolean held)
 
 	timer = ent->client->grenade_time - level.time;
 	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
-	fire_grenade2 (ent, start, forward, damage, speed, timer, radius, held);
+	//+ added so hand grenade is treated like a proximity mine
+	mine_grenade (ent, start, forward, damage, speed, timer, radius, held);
 
 	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
 		ent->client->pers.inventory[ent->client->ammo_index]--;
@@ -858,14 +859,14 @@ void Weapon_Blaster_Fire (edict_t *ent)
 		damage = 10;
 	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, false);
 
-	/*//Genji's weapon spread
+	//Genji's weapon spread
 	if(ent->client->pers.genji)
 	{
 		//Adds two new blaster bolts 
 		Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, true, false);
 
 		Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER, false, true);
-	}*/
+	}
 
 	ent->client->ps.gunframe++;
 }
@@ -991,17 +992,28 @@ void Machinegun_Fire (edict_t *ent)
 	int			kick = 2;
 	vec3_t		offset;
 
-	if (!(ent->client->buttons & BUTTON_ATTACK))
+	//+ changed for burstfire
+	//continues firing until 3 shots have been fired, or 
+	//burstfire_count = 0
+	if (!(ent->client->buttons & BUTTON_ATTACK) &&
+		( (ent->client->burstfire_count > 2) ||
+		(!ent->client->burstfire_count)))
 	{
 		ent->client->machinegun_shots = 0;
+		ent->client->burstfire_count = 0;
 		ent->client->ps.gunframe++;
 		return;
 	}
 
-	if (ent->client->ps.gunframe == 5)
-		ent->client->ps.gunframe = 4;
-	else
-		ent->client->ps.gunframe = 5;
+	//+Changed for burstfire
+	//adds kickback for gun only for 3 shots that are fired
+	if(ent->client->burstfire_count < 3)
+	{
+		if (ent->client->ps.gunframe == 5)
+			ent->client->ps.gunframe = 4;
+		else
+			ent->client->ps.gunframe = 5;
+	}
 
 	if (ent->client->pers.inventory[ent->client->ammo_index] < 1)
 	{
@@ -1011,6 +1023,10 @@ void Machinegun_Fire (edict_t *ent)
 			gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 			ent->pain_debounce_time = level.time + 1;
 		}
+
+		//+added for BF 
+		ent->client->burstfire_count = 0;
+
 		NoAmmoWeaponChange (ent);
 		return;
 	}
@@ -1029,25 +1045,47 @@ void Machinegun_Fire (edict_t *ent)
 	ent->client->kick_origin[0] = crandom() * 0.35;
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
+	//+chnaged for BF as we dont want gun raising with bursts
 	// raise the gun as it is firing
-	if (!deathmatch->value)
+	/*if (!deathmatch->value)
 	{
 		ent->client->machinegun_shots++;
 		if (ent->client->machinegun_shots > 9)
 			ent->client->machinegun_shots = 9;
-	}
+	}*/
 
 	// get start / end positions
 	VectorAdd (ent->client->v_angle, ent->client->kick_angles, angles);
 	AngleVectors (angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight-8);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
-	fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
+	//fire_bullet (ent, start, forward, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
 
-	gi.WriteByte (svc_muzzleflash);
-	gi.WriteShort (ent-g_edicts);
-	gi.WriteByte (MZ_MACHINEGUN | is_silenced);
-	gi.multicast (ent->s.origin, MULTICAST_PVS);
+	//+Code that makes the gun fire in bursts
+	 ent->client->burstfire_count++;
+     if (ent->client->burstfire_count < 4)
+     {
+		 fire_bullet (ent, start, forward, damage*1.5, kick/2, DEFAULT_BULLET_HSPREAD/2, DEFAULT_BULLET_VSPREAD/2, MOD_MACHINEGUN);
+        gi.WriteByte (svc_muzzleflash);
+        gi.WriteShort (ent-g_edicts);
+        gi.WriteByte (MZ_MACHINEGUN | is_silenced);
+        gi.multicast (ent->s.origin, MULTICAST_PVS);
+
+        PlayerNoise(ent, start, PNOISE_WEAPON);
+
+		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+      }       
+      else if (ent->client->burstfire_count > 6)
+	  {
+        ent->client->burstfire_count=0;
+	  }
+
+
+
+	//gi.WriteByte (svc_muzzleflash);
+	//gi.WriteShort (ent-g_edicts);
+	//gi.WriteByte (MZ_MACHINEGUN | is_silenced);
+	//gi.multicast (ent->s.origin, MULTICAST_PVS);
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 

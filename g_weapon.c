@@ -324,14 +324,7 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 		T_Damage (other, self, self->owner, self->velocity, self->s.origin, plane->normal, self->dmg, 1, DAMAGE_ENERGY, mod);
 	}
 	else
-	{
-		//if(client->pers.genji)
-		{
-			return;
-		}
-
-		//Prevents blast from dying when hitting walls
-		
+	{	
 		gi.WriteByte (svc_temp_entity);
 		gi.WriteByte (TE_BLASTER);
 		gi.WritePosition (self->s.origin);
@@ -378,15 +371,7 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	vectoangles (dir, bolt->s.angles);
 	VectorScale (dir, speed, bolt->velocity);
 	
-	if(client->pers.genji)
-	{
-		bolt->movetype = MOVETYPE_FLYRICOCHET;
-	}
-	else
-	{
-		bolt->movetype = MOVETYPE_FLYMISSILE;
-	}
-
+	bolt->movetype = MOVETYPE_FLYMISSILE;
 	bolt->clipmask = MASK_SHOT;
 	bolt->solid = SOLID_BBOX;
 	bolt->s.effects |= effect;
@@ -564,6 +549,38 @@ static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurfa
 	Grenade_Explode (ent);
 }
 
+//+ Think function for proximity mines
+static void proxim_think (edict_t *ent)
+{
+	edict_t *blip = NULL;
+
+	if (level.time > ent->delay)
+	{
+		Grenade_Explode(ent);
+		return;
+	}
+	
+	ent->think = proxim_think;
+	while ((blip = findradius(blip, ent->s.origin, 100)) != NULL)
+	{
+		if (!(blip->svflags & SVF_MONSTER) && !blip->client)
+			continue;
+		//if (blip == ent->owner)
+			//continue;
+		if (!blip->takedamage)
+			continue;
+		if (blip->health <= 0)
+			continue;
+		if (!visible(ent, blip))
+			continue;
+		ent->think = Grenade_Explode;
+		break;
+	}
+
+	ent->nextthink = level.time + .1;
+}
+
+
 //+ Added code for mod in this function
 void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
 {
@@ -661,6 +678,60 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	}
 }
 
+//+ Proximity mine
+void mine_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius, qboolean held)
+{
+	edict_t	*grenade;
+	vec3_t	dir;
+	vec3_t	forward, right, up;
+
+	vectoangles (aimdir, dir);
+	AngleVectors (dir, forward, right, up);
+
+	grenade = G_Spawn();
+	VectorCopy (start, grenade->s.origin);
+	VectorScale (aimdir, speed, grenade->velocity);
+	VectorMA (grenade->velocity, 200 + crandom() * 10.0, up, grenade->velocity);
+	VectorMA (grenade->velocity, crandom() * 10.0, right, grenade->velocity);
+	VectorSet (grenade->avelocity, 300, 300, 300);
+	grenade->movetype = MOVETYPE_BOUNCE;
+	grenade->clipmask = MASK_SHOT;
+	grenade->solid = SOLID_BBOX;
+	grenade->s.effects |= EF_GRENADE;
+	VectorClear (grenade->mins);
+	VectorClear (grenade->maxs);
+	grenade->s.modelindex = gi.modelindex ("models/objects/grenade2/tris.md2");
+	grenade->owner = self;
+	grenade->touch = Grenade_Touch;
+	//grenade->nextthink = level.time + timer;
+	//grenade->think = Grenade_Explode;
+
+	//+ Mine think 
+	grenade->nextthink = level.time + 1;
+	grenade->think = proxim_think;
+	grenade->delay = level.time + 60;
+
+
+	
+	grenade->dmg = damage;
+	grenade->dmg_radius = damage_radius;
+	grenade->classname = "mines";
+
+	if (held)
+		grenade->spawnflags = 3;
+	else
+		grenade->spawnflags = 1;
+	grenade->s.sound = gi.soundindex("weapons/hgrenc1b.wav");
+
+	if (timer <= 0.0)
+		Grenade_Explode (grenade);
+	else
+	{
+		gi.sound (self, CHAN_WEAPON, gi.soundindex ("weapons/hgrent1a.wav"), 1, ATTN_NORM, 0);
+		gi.linkentity (grenade);
+	}
+}
+
 
 /*
 =================
@@ -718,7 +789,7 @@ void rocket_touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *su
 	G_FreeEdict (ent);
 }
 
-//+New Think function for homing missles
+//+ New Think function for homing missles
 void homing_think (edict_t *ent)
 {
 	edict_t	*target = NULL;
@@ -795,7 +866,7 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	//Starts homing if player has 3 or more rockets, otherwise fires normally
 	if (self->client->pers.inventory[ITEM_INDEX(FindItem("Rockets"))] >= 3)
 	{
-		self->client->pers.inventory[ITEM_INDEX(FindItem("Rockets"))] -= 3;
+		self->client->pers.inventory[ITEM_INDEX(FindItem("Rockets"))] -= 2;
 		rocket->nextthink = level.time + .1;
 		rocket->think = homing_think;
 	} 
