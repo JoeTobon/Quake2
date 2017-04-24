@@ -177,7 +177,7 @@ MOVETYPE_FLY,
 MOVETYPE_TOSS,			// gravity
 MOVETYPE_FLYMISSILE,	// extra size to monsters
 MOVETYPE_BOUNCE,
-MOVETYPE_FLYRICOCHET	//Added so bolts can bounce off the wall
+MOVETYPE_FLYRICOCHET	//+ Added so hyperblaster bolts can bounce off the wall
 } movetype_t;
 
 

@@ -683,7 +683,8 @@ void SV_Physics_Toss (edict_t *ent)
 
 // add gravity
 	if (ent->movetype != MOVETYPE_FLY
-	&& ent->movetype != MOVETYPE_FLYMISSILE)
+	&& ent->movetype != MOVETYPE_FLYMISSILE
+	&& ent->movetype != MOVETYPE_FLYRICOCHET) //+ Used for bounce gravity wont effect
 		SV_AddGravity (ent);
 
 // move angles
@@ -699,13 +700,24 @@ void SV_Physics_Toss (edict_t *ent)
 	{
 		if (ent->movetype == MOVETYPE_BOUNCE)
 			backoff = 1.5;
+		else if (ent->movetype == MOVETYPE_FLYRICOCHET)
+			backoff = 2;	//+ for bounce
+		
 		else
 			backoff = 1;
 
 		ClipVelocity (ent->velocity, trace.plane.normal, ent->velocity, backoff);
 
+		//+ this part re-aligns the entity's angles after
+		// it bounces off a wall. Simply set its angles to its velocity vector.
+		if (ent->movetype == MOVETYPE_FLYRICOCHET)
+		{
+			vectoangles (ent->velocity, ent->s.angles);
+		}
+
 	// stop if on ground
-		if (trace.plane.normal[2] > 0.7)
+		//+ add for bounce so hyper blasts don't stop on ground
+		if (trace.plane.normal[2] > 0.7  && ent->movetype != MOVETYPE_FLYRICOCHET)
 		{		
 			if (ent->velocity[2] < 60 || ent->movetype != MOVETYPE_BOUNCE )
 			{
@@ -934,6 +946,7 @@ void G_RunEntity (edict_t *ent)
 	case MOVETYPE_BOUNCE:
 	case MOVETYPE_FLY:
 	case MOVETYPE_FLYMISSILE:
+	case MOVETYPE_FLYRICOCHET:		//+ for bounce
 		SV_Physics_Toss (ent);
 		break;
 	default:

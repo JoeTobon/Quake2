@@ -340,6 +340,55 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	G_FreeEdict (self);
 }
 
+//+ Fires hyperblaster (bounce mod)
+void hblaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+{
+	int		mod;
+
+	gclient_t *client;
+	client = self->client;
+
+	if (other == self->owner)
+		return;
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict (self);
+		return;
+	}
+
+	if (self->owner->client)
+		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
+
+	if (other->takedamage)
+	{
+		if (self->spawnflags & 1)
+			mod = MOD_HYPERBLASTER;
+		else
+			mod = MOD_BLASTER;
+		T_Damage (other, self, self->owner, self->velocity, self->s.origin, plane->normal, self->dmg, 1, DAMAGE_ENERGY, mod);
+	}
+	else
+	{	
+		return;
+
+		/*not used so hyperblaster can bounce
+		gi.WriteByte (svc_temp_entity);
+		gi.WriteByte (TE_BLASTER);
+		gi.WritePosition (self->s.origin);
+		if (!plane)
+			gi.WriteDir (vec3_origin);
+		else
+			gi.WriteDir (plane->normal);
+		gi.multicast (self->s.origin, MULTICAST_PVS);
+		*/
+		
+	}
+
+	G_FreeEdict (self);
+}
+
+
 //+ Added code for mod in this function- Joe
 void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int effect, qboolean hyper)
 {
@@ -371,7 +420,17 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	vectoangles (dir, bolt->s.angles);
 	VectorScale (dir, speed, bolt->velocity);
 	
-	bolt->movetype = MOVETYPE_FLYMISSILE;
+	//enables hyperblaster to bounce
+	if(hyper == true)
+	{
+		bolt->movetype = MOVETYPE_FLYRICOCHET;
+	}
+	else
+	{
+		bolt->movetype = MOVETYPE_FLYMISSILE;
+	}
+
+	//bolt->movetype = MOVETYPE_FLYMISSILE;
 	bolt->clipmask = MASK_SHOT;
 	bolt->solid = SOLID_BBOX;
 	bolt->s.effects |= effect;
@@ -380,7 +439,18 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	bolt->s.modelindex = gi.modelindex ("models/objects/laser/tris.md2");
 	bolt->s.sound = gi.soundindex ("misc/lasfly.wav");
 	bolt->owner = self;
-	bolt->touch = blaster_touch;
+
+	//enables hyperblaster to bounce
+	if(hyper)
+	{
+		bolt->touch = hblaster_touch;
+	}
+	else
+	{
+		bolt->touch = blaster_touch;
+	}
+
+	//bolt->touch = blaster_touch;
 	bolt->nextthink = level.time + 2;
 	bolt->think = G_FreeEdict;
 	bolt->dmg = damage;
