@@ -638,6 +638,11 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
 
+	//+gives railgun
+	item = FindItem("RailGun");
+	client->pers.selected_item = ITEM_INDEX(item);
+	client->pers.inventory[client->pers.selected_item] = 1;
+
 	//+ gives player shotgun ammo 
 	item = FindItem("Shells");
 	for (i=0 ; i<game.num_items ; i++)
@@ -653,6 +658,16 @@ void InitClientPersistant (gclient_t *client)
 
 	//+ gives player grenade ammo
 	item = FindItem("Grenades");
+	if (item)
+	{
+		index = ITEM_INDEX(item);
+		client->pers.inventory[index] += item->quantity;
+		if (client->pers.inventory[index] > client->pers.max_grenades)
+			client->pers.inventory[index] = client->pers.max_grenades;
+	}
+
+	//+ gives player rails
+	item = FindItem("Slugs");
 	if (item)
 	{
 		index = ITEM_INDEX(item);

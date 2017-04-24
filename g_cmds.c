@@ -1005,6 +1005,7 @@ void Cmd_jetPack(edict_t *ent)
 
 }
 
+//+ leap for winston
 void Cmd_Leap(edict_t *ent)
 {
 	float leapHeight = 600;
@@ -1016,6 +1017,25 @@ void Cmd_Leap(edict_t *ent)
 		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
 		VectorScale(launch, leapHeight, launch); 
 		VectorAdd(launch, ent->velocity, ent->velocity); 
+	}
+}
+
+//+ scope for railgun
+void Cmd_Scope(edict_t *ent)
+{
+	gitem_t		*item;
+
+	item = FindItem("Railgun");
+
+	if(ent->client->pers.weapon ==  item)
+	{
+		if (ent->client->ps.fov == 90) 
+			ent->client->ps.fov = 40;
+		else if (ent->client->ps.fov == 40) 
+			ent->client->ps.fov = 20;
+		else if (ent->client->ps.fov == 20)
+			ent->client->ps.fov = 90;
+
 	}
 }
 
@@ -1116,6 +1136,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_jetPack(ent);
 	else if (Q_stricmp(cmd, "leap") == 0)
 		Cmd_Leap(ent);
+	else if(Q_stricmp(cmd, "scope") == 0)
+		Cmd_Scope(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }
