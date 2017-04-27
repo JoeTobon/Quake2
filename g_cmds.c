@@ -1021,12 +1021,25 @@ void Cmd_Leap(edict_t *ent)
 }
 
 //+ scope for railgun
-void Cmd_Scope(edict_t *ent)
+//+ push for shotgun
+//+ pull for super shotgun
+void Cmd_AltF(edict_t *ent)
 {
 	gitem_t		*item;
+	gitem_t		*item2;
+	gitem_t		*item3;
 
-	item = FindItem("Railgun");
+	vec3_t	start;
+	vec3_t	forward;
+	vec3_t	end;
+	trace_t	tr;	
 
+
+	item  = FindItem("Railgun");
+	item2 = FindItem("Shotgun");
+	item3 = FindItem("Super Shotgun");
+	
+	//adds scope for railgun
 	if(ent->client->pers.weapon ==  item)
 	{
 		if (ent->client->ps.fov == 90) 
@@ -1035,7 +1048,43 @@ void Cmd_Scope(edict_t *ent)
 			ent->client->ps.fov = 20;
 		else if (ent->client->ps.fov == 20)
 			ent->client->ps.fov = 90;
+	}
 
+	//adds push for shotgun when winston
+	else if(ent->client->pers.weapon == item2 && ent->client->pers.winston)
+	{
+		VectorCopy(ent->s.origin, start);						    //copies vector of first parameter into second 
+		start[2] += ent->viewheight;								//used to trace from player's viewpoint
+		AngleVectors(ent->client->v_angle, forward, NULL, NULL);	//angles player vector forward
+		VectorMA(start, 8192, forward, end);						//used to trace a line from the player's viewpoint to a point 8192 units ahead of them
+																	//Scales start vector 8192 units forward and stores it in end vector
+		
+		tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);		//traces from player position to point 8192 units in front of them
+
+		//if trace hits entity and entity is a player 
+		//scale player's forward vector by 5000 
+		if(tr.ent && tr.ent->client)
+		{
+			VectorScale(forward, 5000, forward);
+			VectorAdd(forward, tr.ent->velocity, tr.ent->velocity);
+		}
+	}
+
+	//adds pull for super shotgun
+	//same code as push just scale player's forward vector in a negative fashion to 
+	//bring them towards you
+	else if(ent->client->pers.weapon == item3)
+	{
+		VectorCopy(ent->s.origin, start);
+		start[2] += ent->viewheight;
+		AngleVectors(ent->client->v_angle, forward, NULL, NULL);
+		VectorMA(start, 8192, forward, end);
+		tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
+		if ( tr.ent && tr.ent->client)
+		{
+			VectorScale(forward, -5000, forward);
+			VectorAdd(forward, tr.ent->velocity, tr.ent->velocity);
+		}
 	}
 }
 
@@ -1136,8 +1185,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_jetPack(ent);
 	else if (Q_stricmp(cmd, "leap") == 0)
 		Cmd_Leap(ent);
-	else if(Q_stricmp(cmd, "scope") == 0)
-		Cmd_Scope(ent);
+	else if(Q_stricmp(cmd, "altfire") == 0)
+		Cmd_AltF(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }
