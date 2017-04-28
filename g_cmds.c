@@ -880,6 +880,159 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+//+ Genji character selection
+void Cmd_SelectG(edict_t *ent)
+{
+	gclient_t *client;
+	gitem_t	  *item;
+	int i, index;
+
+	client = ent->client;
+	item = FindItem("Machinegun");
+
+	//+ Cannot switch characters once one is selected until death
+	if(client->pers.pharah == false && client->pers.winston == false)
+	{
+		client->pers.genji = true;
+	}
+	else if(client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Already Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
+	}
+	else if(client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
+	}
+
+	if(client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+
+		//+ gives player machine gun ammo
+		item = FindItem("Bullets");
+		if (item)
+		{
+			index = ITEM_INDEX(item);
+			client->pers.inventory[index] += item->quantity;
+			if (client->pers.inventory[index] > client->pers.max_bullets)
+				client->pers.inventory[index] = client->pers.max_bullets;
+		}
+	}
+}
+
+//+ Pharah character selection
+void Cmd_SelectP(edict_t *ent)
+{
+	//+ Used for character selection pharah
+	gclient_t *client;
+	gitem_t	  *item;
+	int i, index;
+
+	client = ent->client;
+
+	item = FindItem("Grenade Launcher");
+
+	//+ Cannot switch characters once one is selected until death
+	if(client->pers.genji == false && client->pers.winston == false)
+	{
+		client->pers.pharah = true;
+	}
+	else if(client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
+	}
+	else if(client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
+	}
+
+	if(client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+
+		//+ gives player grenade ammo
+		item = FindItem("Grenades");
+		if (item)
+		{
+			index = ITEM_INDEX(item);
+			client->pers.inventory[index] += item->quantity;
+			if (client->pers.inventory[index] > client->pers.max_grenades)
+				client->pers.inventory[index] = client->pers.max_grenades;
+		}
+	}
+}
+
+//+ Winston character selection
+void Cmd_SelectW(edict_t *ent)
+{
+	//+ used to select character winston
+	gclient_t *client;
+	gitem_t   *item, *item2;
+	int i, index;
+
+
+	client = ent->client;
+
+	//+ gives player shotgun at the start for character selection
+	item  = FindItem("Shotgun");
+	item2 = FindItem("Railgun");
+	
+	//+ Cannot switch characters once one selected till death
+	if(client->pers.pharah == false && client->pers.genji == false)
+	{
+		client->pers.winston = true;
+	}
+	else if(client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
+	}
+	else if(client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
+	}
+
+
+	if(client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Selected\nQ: Leap\nWeapons: Railgun and shotgun");
+
+		//gives shotgun
+		client->pers.selected_item = ITEM_INDEX(item);
+		client->pers.inventory[client->pers.selected_item] = 1;
+
+		//gives railgun
+		client->pers.selected_item = ITEM_INDEX(item2);
+		client->pers.inventory[client->pers.selected_item] = 1;
+
+		//+ gives player shotgun ammo 
+		item = FindItem("Shells");
+		for (i=0 ; i<game.num_items ; i++)
+		{
+			if (item)
+			{
+				index = ITEM_INDEX(item);
+				client->pers.inventory[index] += item->quantity;
+				if (client->pers.inventory[index] > client->pers.max_shells)
+					client->pers.inventory[index] = client->pers.max_shells;
+			}
+		}
+	
+		//+ gives player rails
+		item = FindItem("Slugs");
+		if (item)
+		{
+			index = ITEM_INDEX(item);
+			client->pers.inventory[index] += item->quantity;
+			if (client->pers.inventory[index] > client->pers.max_grenades)
+				client->pers.inventory[index] = client->pers.max_grenades;
+		}
+	}
+}
+
 //+ Genji's double jump command
 void Cmd_DoubleJump(edict_t *ent)
 {
@@ -927,7 +1080,7 @@ void Cmd_Dash(edict_t *ent)
 }
 
 //+ Pharah's jump jet command (helps keep her in air)
-void Cmd_jumpJet(edict_t *ent)
+void Cmd_JumpJet(edict_t *ent)
 {
 	float  launchH = 600;
 	vec3_t thrustUp;
@@ -953,7 +1106,7 @@ void Cmd_jumpJet(edict_t *ent)
 }
 
 //+ Pharah's jet pack command (enabels her to hover in the air)
-void Cmd_jetPack(edict_t *ent)
+void Cmd_JetPack(edict_t *ent)
 {
 	vec3_t forward, right;
 	vec3_t pack_pos, jet_vector;
@@ -1009,7 +1162,7 @@ void Cmd_jetPack(edict_t *ent)
 void Cmd_Leap(edict_t *ent)
 {
 	float leapHeight  = 600;
-	float lForward    = 400;
+	float lForward    = 500;
 	vec3_t launch;
 	vec3_t launch2;
 
@@ -1026,6 +1179,36 @@ void Cmd_Leap(edict_t *ent)
 	}
 }
 
+//+ Ability one
+void Cmd_Ability1(edict_t *ent)
+{
+	if(ent->client->pers.genji)
+	{
+		Cmd_DoubleJump(ent);
+	}
+	else if(ent->client->pers.pharah)
+	{
+		Cmd_JumpJet(ent);
+	}
+	else if(ent->client->pers.winston)
+	{
+		Cmd_Leap(ent);
+	}
+}
+
+//+ Ability two
+void Cmd_Ability2(edict_t *ent)
+{
+	if(ent->client->pers.genji)
+	{
+		Cmd_Dash(ent);
+	}
+	else if(ent->client->pers.pharah)
+	{
+		Cmd_JetPack(ent);
+	}
+}
+
 //+ scope for railgun
 //+ push for shotgun
 //+ pull for super shotgun
@@ -1034,18 +1217,15 @@ void Cmd_AltF(edict_t *ent)
 	gitem_t		*item;
 	gitem_t		*item2;
 	gitem_t		*item3;
-	gitem_t		*item4;
 
 	vec3_t	start;
 	vec3_t	forward;
 	vec3_t	end;
 	trace_t	tr;	
 
-
 	item  = FindItem("Railgun");
 	item2 = FindItem("Shotgun");
 	item3 = FindItem("Super Shotgun");
-	item4 = FindItem("Chaingun");
 	
 	//adds scope for railgun
 	if(ent->client->pers.weapon ==  item)
@@ -1184,18 +1364,18 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
-	else if (Q_stricmp(cmd, "doubleJump") == 0) //+ Call command for doubleJump
-		Cmd_DoubleJump(ent);
-	else if (Q_stricmp(cmd, "dash") == 0) //+ Call command for dash
-		Cmd_Dash(ent);
-	else if (Q_stricmp(cmd, "jumpJet") == 0) //+ Call command for jumpJet
-		Cmd_jumpJet(ent);
-	else if (Q_stricmp(cmd, "jetPack") == 0) //+ Call commane for jetPack
-		Cmd_jetPack(ent);
-	else if (Q_stricmp(cmd, "leap") == 0)
-		Cmd_Leap(ent);
+	else if(Q_stricmp(cmd, "ability1") == 0)
+		Cmd_Ability1(ent);
+	else if(Q_stricmp(cmd, "ability2") == 0)
+		Cmd_Ability2(ent);
 	else if(Q_stricmp(cmd, "altfire") == 0)
 		Cmd_AltF(ent);
+	else if(Q_stricmp(cmd, "genji") == 0)
+		Cmd_SelectG(ent);
+	else if(Q_stricmp(cmd, "pharah") == 0)
+		Cmd_SelectP(ent);
+	else if(Q_stricmp(cmd, "winston") == 0)
+		Cmd_SelectW(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

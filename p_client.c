@@ -623,69 +623,6 @@ void InitClientPersistant (gclient_t *client)
 
 	client->pers.connected = true;
 
-	//+ gives player shotgun at the start for character selection
-	item = FindItem("Shotgun");
-	client->pers.selected_item = ITEM_INDEX(item);
-	client->pers.inventory[client->pers.selected_item] = 1;
-
-	//+ gives player grenade launcher at the start for character selection
-	item = FindItem("Grenade Launcher");
-	client->pers.selected_item = ITEM_INDEX(item);
-	client->pers.inventory[client->pers.selected_item] = 1;
-
-	//+gives rocket launher 
-	item = FindItem("Rocket Launcher");
-	client->pers.selected_item = ITEM_INDEX(item);
-	client->pers.inventory[client->pers.selected_item] = 1;
-
-	//+gives railgun
-	item = FindItem("RailGun");
-	client->pers.selected_item = ITEM_INDEX(item);
-	client->pers.inventory[client->pers.selected_item] = 1;
-
-	//+ gives player shotgun ammo 
-	item = FindItem("Shells");
-	for (i=0 ; i<game.num_items ; i++)
-	{
-		if (item)
-		{
-			index = ITEM_INDEX(item);
-			client->pers.inventory[index] += item->quantity;
-			if (client->pers.inventory[index] > client->pers.max_shells)
-				client->pers.inventory[index] = client->pers.max_shells;
-		}
-	}
-
-	//+ gives player grenade ammo
-	item = FindItem("Grenades");
-	if (item)
-	{
-		index = ITEM_INDEX(item);
-		client->pers.inventory[index] += item->quantity;
-		if (client->pers.inventory[index] > client->pers.max_grenades)
-			client->pers.inventory[index] = client->pers.max_grenades;
-	}
-
-	//+ gives player rails
-	item = FindItem("Slugs");
-	if (item)
-	{
-		index = ITEM_INDEX(item);
-		client->pers.inventory[index] += item->quantity;
-		if (client->pers.inventory[index] > client->pers.max_grenades)
-			client->pers.inventory[index] = client->pers.max_grenades;
-	}
-
-	//+ gives player rocket ammo
-	item = FindItem("Rockets");
-	if (item)
-	{
-		index = ITEM_INDEX(item);
-		client->pers.inventory[index] += item->quantity;
-		if (client->pers.inventory[index] > client->pers.max_rockets)
-			client->pers.inventory[index] = client->pers.max_rockets;
-	}
-
 	//+ sets character modes as false in the begining
 	client->pers.genji   = false;
 	client->pers.pharah   = false;
@@ -1862,17 +1799,6 @@ void ClientBeginServerFrame (edict_t *ent)
 		return;
 
 	client = ent->client;
-
-	
-	
-
-	//+ informs which character the player currently
-	if(client->pers.genji)
-		gi.centerprintf(ent, "Genji Selected \n");
-	if(client->pers.pharah)
-		gi.centerprintf(ent, "Pharah Selected \n");
-	if(client->pers.winston)
-		gi.centerprintf(ent, "Winston Selected \n");
 
 	//+ Sets doubleJump to true if on ground
 	if(ent->groundentity && ent->client->pers.genji) 

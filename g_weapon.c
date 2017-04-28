@@ -282,16 +282,6 @@ void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int k
 {
 	int		i;
 
-	//+ used to select character winston
-	gclient_t *client;
-	client = self->client;
-
-	//+ Cannot switch characters once one selected till death
-	if(client->pers.pharah == false && client->pers.genji == false)
-	{
-		client->pers.winston = true;
-	}
-
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
 }
@@ -402,17 +392,6 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 {
 	edict_t	*bolt;
 	trace_t	tr;
-
-	//+ Used for character selection Genji
-	gclient_t *client;
-	client = self->client;
-
-	//+ Cannot switch characters once one is selected until death
-	if(client->pers.pharah == false && client->pers.winston == false)
-	{
-		client->pers.genji = true;
-	}
-	
 
 	VectorNormalize (dir);
 
@@ -728,8 +707,8 @@ static void proxim_think (edict_t *ent)
 	{
 		if (!(blip->svflags & SVF_MONSTER) && !blip->client)
 			continue;
-		//if (blip == ent->owner)
-			//continue;
+		if (blip == ent->owner)
+			continue;
 		if (!blip->takedamage)
 			continue;
 		if (blip->health <= 0)
@@ -747,19 +726,12 @@ static void proxim_think (edict_t *ent)
 //+ Added code for mod in this function
 void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
 {
-	edict_t	*grenade;
+	edict_t	  *grenade;
+	gclient_t *client;
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
-	//+ Used for character selection pharah
-	gclient_t *client;
 	client = self->client;
-
-	//+ Cannot switch characters once one is selected until death
-	if(client->pers.genji == false && client->pers.winston == false)
-	{
-		client->pers.pharah = true;
-	}
 
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
