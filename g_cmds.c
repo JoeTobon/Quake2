@@ -1008,15 +1008,21 @@ void Cmd_jetPack(edict_t *ent)
 //+ leap for winston
 void Cmd_Leap(edict_t *ent)
 {
-	float leapHeight = 600;
+	float leapHeight  = 600;
+	float lForward    = 400;
 	vec3_t launch;
+	vec3_t launch2;
 
 	//if jump jet is true enables you to jump jet
 	if(ent->groundentity && ent->client->pers.winston)
 	{
-		AngleVectors(ent->client->v_angle, NULL, NULL, launch); 
+		AngleVectors(ent->client->v_angle, launch2, NULL, launch); 
+
 		VectorScale(launch, leapHeight, launch); 
 		VectorAdd(launch, ent->velocity, ent->velocity); 
+
+		VectorScale(launch2, lForward, launch2); 
+		VectorAdd(launch2, ent->velocity, ent->velocity); 
 	}
 }
 
@@ -1028,6 +1034,7 @@ void Cmd_AltF(edict_t *ent)
 	gitem_t		*item;
 	gitem_t		*item2;
 	gitem_t		*item3;
+	gitem_t		*item4;
 
 	vec3_t	start;
 	vec3_t	forward;
@@ -1038,6 +1045,7 @@ void Cmd_AltF(edict_t *ent)
 	item  = FindItem("Railgun");
 	item2 = FindItem("Shotgun");
 	item3 = FindItem("Super Shotgun");
+	item4 = FindItem("Chaingun");
 	
 	//adds scope for railgun
 	if(ent->client->pers.weapon ==  item)
@@ -1087,6 +1095,7 @@ void Cmd_AltF(edict_t *ent)
 		}
 	}
 }
+
 
 /*
 =================

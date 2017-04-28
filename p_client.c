@@ -1303,6 +1303,10 @@ void PutClientInServer (edict_t *ent)
 	//+ not allowed to jumpJet at the start
 	client->pers.jumpJet = false;
 
+	//+ initiallizes flash grenades
+	client->blindBase = 0;
+	client->blindTime = 0;
+
 	// set the delta angle
 	for (i=0 ; i<3 ; i++)
 	{

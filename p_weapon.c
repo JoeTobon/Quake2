@@ -1045,7 +1045,7 @@ void Machinegun_Fire (edict_t *ent)
 	ent->client->kick_origin[0] = crandom() * 0.35;
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
-	//+chnaged for BF as we dont want gun raising with bursts
+	//+changed for BF as we dont want gun raising with bursts
 	// raise the gun as it is firing
 	/*if (!deathmatch->value)
 	{
@@ -1208,7 +1208,7 @@ void Chaingun_Fire (edict_t *ent)
 		ent->client->kick_angles[i] = crandom() * 0.7;
 	}
 
-	for (i=0 ; i<shots ; i++)
+	for (i=0 ; i<5; i++)
 	{
 		// get start / end positions
 		AngleVectors (ent->client->v_angle, forward, right, up);

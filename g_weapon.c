@@ -257,7 +257,15 @@ pistols, rifles, etc....
 */
 void fire_bullet (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod)
 {
-	fire_lead (self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod);
+	if(mod == MOD_CHAINGUN)
+	{
+		//fire_flash (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
+		fire_flash (self, start, aimdir, damage, 1, .5, 10);
+	}
+	else
+	{
+		fire_lead (self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod);
+	}
 }
 
 
@@ -619,6 +627,91 @@ static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurfa
 	Grenade_Explode (ent);
 }
 
+#define         FLASH_RADIUS                    200
+#define         BLIND_FLASH                     10
+
+//+ handles flash gnade explosion
+void Flash_Explode (edict_t *ent)
+{
+	vec3_t      offset, origin;
+    edict_t *target;
+
+    // Move it off the ground so people are sure to see it
+    VectorSet(offset, 0, 0, 10);   
+	VectorAdd(ent->s.origin, offset, ent->s.origin);
+
+    if (ent->owner->client)
+	   PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+
+    target = NULL;
+
+    while ((target = findradius(target, ent->s.origin, FLASH_RADIUS)) != NULL)
+    {
+	//	if (target == ent->owner)
+		//	continue;       // You know when to close your eyes, don't you?
+		if (!target->client)
+            continue;       // It's not a player
+		if (!visible(ent, target))
+            continue;       // The grenade can't see it
+		if (!infront(target, ent))
+             continue;       // It's not facing it
+
+        // Increment the blindness counter
+        target->client->blindTime = BLIND_FLASH * 1.5;
+        target->client->blindBase = BLIND_FLASH;
+
+        // Let the player know what just happened
+        // (It's just as well, he won't see the message immediately!)
+        gi.cprintf(target, PRINT_HIGH, 
+			"You are blinded by a flash grenade!!!\n");
+
+        // Let the owner of the grenade know it worked
+        gi.cprintf(ent->owner, PRINT_HIGH, 
+			"%s is blinded by your flash grenade!\n",
+			target->client->pers.netname);
+    }
+
+	// Blow up the grenade
+    BecomeExplosion1(ent);
+}
+
+//+ defines behavior of flash grenade when it hits something
+void Flash_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+{
+	if (other == ent->owner)
+		return;
+
+    // If it goes in to orbit, it's gone...
+    if (surf && (surf->flags & SURF_SKY))
+    {
+         G_FreeEdict (ent);
+         return;
+    }
+
+    // All this does is make the bouncing noises when it hits something...
+    if (!other->takedamage)
+    {
+         if (ent->spawnflags & 1)
+         {
+             if (random() > 0.5)
+                 gi.sound (ent, CHAN_VOICE, gi.soundindex("weapons/hgrenb1a.wav"),
+                                                1, ATTN_NORM, 0);
+             else
+                 gi.sound (ent, CHAN_VOICE, gi.soundindex("weapons/hgrenb2a.wav"),
+                                       1, ATTN_NORM, 0);
+         }
+         else
+		 {
+             gi.sound (ent, CHAN_VOICE, gi.soundindex("weapons/grenlb1b.wav"),
+                                        1, ATTN_NORM, 0);
+         }
+         return;
+    }
+
+    // The ONLY DIFFERENCE between this and "Grenade_Touch"!!
+    Flash_Explode (ent);    
+}
+
 //+ Think function for proximity mines
 static void proxim_think (edict_t *ent)
 {
@@ -748,7 +841,43 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	}
 }
 
-//+ Proximity mine
+//+ flash gnade firing
+void fire_flash (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
+{
+	edict_t	*grenade;
+	vec3_t	dir;
+	vec3_t	forward, right, up;
+
+	vectoangles (aimdir, dir);
+	AngleVectors (dir, forward, right, up);
+
+	grenade = G_Spawn();
+	VectorCopy (start, grenade->s.origin);
+	VectorScale (aimdir, speed, grenade->velocity);
+	VectorMA (grenade->velocity, 200 + crandom() * 10.0, up, grenade->velocity);
+	VectorMA (grenade->velocity, crandom() * 10.0, right, grenade->velocity);
+	VectorSet (grenade->avelocity, 300, 300, 300);
+	grenade->movetype = MOVETYPE_BOUNCE;
+	grenade->clipmask = MASK_SHOT;
+	grenade->solid = SOLID_BBOX;
+	grenade->s.effects |= EF_GRENADE;
+	VectorClear (grenade->mins);
+	VectorClear (grenade->maxs);
+	grenade->s.modelindex = gi.modelindex ("models/objects/grenade/tris.md2");
+	grenade->owner = self;
+	//grenade->touch = Grenade_Touch;
+	grenade->nextthink = level.time + timer;
+	grenade->dmg = damage;
+	grenade->dmg_radius = damage_radius;
+
+	grenade->touch = Flash_Touch;
+	grenade->think = Flash_Explode;
+	grenade->classname = "flash_grenade";
+
+	gi.linkentity (grenade);
+}
+
+//+ Proximity mine firing
 void mine_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius, qboolean held)
 {
 	edict_t	*grenade;
