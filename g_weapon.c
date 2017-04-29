@@ -260,7 +260,7 @@ void fire_bullet (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int ki
 	if(mod == MOD_CHAINGUN)
 	{
 		//fire_flash (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
-		fire_flash (self, start, aimdir, damage, 1, .5, 10);
+		fire_flash (self, start, aimdir, 0, 1, 2, 100);
 	}
 	else
 	{
@@ -626,8 +626,8 @@ void Flash_Explode (edict_t *ent)
 
     while ((target = findradius(target, ent->s.origin, FLASH_RADIUS)) != NULL)
     {
-	//	if (target == ent->owner)
-		//	continue;       // You know when to close your eyes, don't you?
+		if (target == ent->owner)
+			continue;       // You know when to close your eyes, don't you?
 		if (!target->client)
             continue;       // It's not a player
 		if (!visible(ent, target))
@@ -642,11 +642,11 @@ void Flash_Explode (edict_t *ent)
         // Let the player know what just happened
         // (It's just as well, he won't see the message immediately!)
         gi.cprintf(target, PRINT_HIGH, 
-			"You are blinded by a flash grenade!!!\n");
+			"You are blind!!!\n");
 
         // Let the owner of the grenade know it worked
         gi.cprintf(ent->owner, PRINT_HIGH, 
-			"%s is blinded by your flash grenade!\n",
+			"%s is blinded by you!\n",
 			target->client->pers.netname);
     }
 
