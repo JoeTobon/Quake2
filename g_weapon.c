@@ -277,7 +277,6 @@ Shoots shotgun pellets.  Used by shotgun and super shotgun.
 =================
 */
 
-//+ Added code for mod in this function- Joe
 void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod)
 {
 	int		i;

@@ -891,21 +891,10 @@ void Cmd_SelectG(edict_t *ent)
 	item = FindItem("Machinegun");
 
 	//+ Cannot switch characters once one is selected until death
-	if(client->pers.pharah == false && client->pers.winston == false)
+	if(client->pers.pharah == false && client->pers.winston == false && client->pers.genji == false)
 	{
 		client->pers.genji = true;
-	}
-	else if(client->pers.pharah)
-	{
-		gi.centerprintf(ent, "Pharah Already Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
-	}
-	else if(client->pers.winston)
-	{
-		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
-	}
 
-	if(client->pers.genji)
-	{
 		gi.centerprintf(ent, "Genji Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
@@ -919,6 +908,18 @@ void Cmd_SelectG(edict_t *ent)
 			if (client->pers.inventory[index] > client->pers.max_bullets)
 				client->pers.inventory[index] = client->pers.max_bullets;
 		}
+	}
+	else if(client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Already Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
+	}
+	else if(client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
+	}
+	else if(client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
 	}
 }
 
@@ -935,21 +936,10 @@ void Cmd_SelectP(edict_t *ent)
 	item = FindItem("Grenade Launcher");
 
 	//+ Cannot switch characters once one is selected until death
-	if(client->pers.genji == false && client->pers.winston == false)
+	if(client->pers.genji == false && client->pers.winston == false && client->pers.pharah == false)
 	{
 		client->pers.pharah = true;
-	}
-	else if(client->pers.genji)
-	{
-		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
-	}
-	else if(client->pers.winston)
-	{
-		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
-	}
 
-	if(client->pers.pharah)
-	{
 		gi.centerprintf(ent, "Pharah Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
 		client->pers.selected_item = ITEM_INDEX(item);
 		client->pers.inventory[client->pers.selected_item] = 1;
@@ -963,6 +953,18 @@ void Cmd_SelectP(edict_t *ent)
 			if (client->pers.inventory[index] > client->pers.max_grenades)
 				client->pers.inventory[index] = client->pers.max_grenades;
 		}
+	}
+	else if(client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
+	}
+	else if(client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
+	}
+	else if(client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Already Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
 	}
 }
 
@@ -982,22 +984,10 @@ void Cmd_SelectW(edict_t *ent)
 	item2 = FindItem("Railgun");
 	
 	//+ Cannot switch characters once one selected till death
-	if(client->pers.pharah == false && client->pers.genji == false)
+	if(client->pers.pharah == false && client->pers.genji == false && client->pers.winston == false)
 	{
 		client->pers.winston = true;
-	}
-	else if(client->pers.genji)
-	{
-		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
-	}
-	else if(client->pers.pharah)
-	{
-		gi.centerprintf(ent, "Pharah Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
-	}
 
-
-	if(client->pers.winston)
-	{
 		gi.centerprintf(ent, "Winston Selected\nQ: Leap\nWeapons: Railgun and shotgun");
 
 		//gives shotgun
@@ -1030,6 +1020,18 @@ void Cmd_SelectW(edict_t *ent)
 			if (client->pers.inventory[index] > client->pers.max_grenades)
 				client->pers.inventory[index] = client->pers.max_grenades;
 		}
+	}
+	else if(client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Already Selected\nQ: Double Jump\nE:Dash\nWeapons: Blaster and Machine Gun");
+	}
+	else if(client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Already Selected\nQ: Jet Jump\nE: Jet Pack\nWeapons: Grenade Launcher");
+	}
+	else if(client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Already Selected\nQ: Leap\nWeapons: Railgun and shotgun");
 	}
 }
 
@@ -1105,7 +1107,7 @@ void Cmd_JumpJet(edict_t *ent)
 	}
 }
 
-//+ Pharah's jet pack command (enabels her to hover in the air)
+//+ Pharah's jet pack command (enables her to hover in the air)
 void Cmd_JetPack(edict_t *ent)
 {
 	vec3_t forward, right;
@@ -1284,6 +1286,26 @@ void Cmd_AltF(edict_t *ent)
 	}
 }
 
+void Cmd_CharHelp(edict_t *ent)
+{
+	if(ent->client->pers.genji)
+	{
+		gi.centerprintf(ent, "Genji Selected\n Q (Double Jump): Press to jump again \nwhen in the air. \n\n E (Dash): Press to dash while \non the ground.\n\n Weapons: Spawn with a three shot blaster\nand burst fire machine gun.");
+	}
+	else if(ent->client->pers.pharah)
+	{
+		gi.centerprintf(ent, "Pharah Selected\n Q (Jet Jump): Press to thrust up while \n in the air to\n continue flying. \n\nE (Jet Pack): Press to fly in the air \n\nWeapon: Spawn with a grenade launcher\nthat fires cluster grenades.");
+	}
+	else if(ent->client->pers.winston)
+	{
+		gi.centerprintf(ent, "Winston Selected\n Q (Leap): Press while on the ground\n to leap extremely far. \n\n  Weapon: Spawn with a shotgun that can\n pull enemies towards you\nand a railgun with a scope.");
+	}
+	else
+	{
+		gi.centerprintf(ent, "Select a character for further assistance\n G: Select Genji\n M: Select Winston\n H: Select Pharah");
+	}
+}
+
 
 /*
 =================
@@ -1384,6 +1406,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_SelectP(ent);
 	else if(Q_stricmp(cmd, "winston") == 0)
 		Cmd_SelectW(ent);
+	else if(Q_stricmp(cmd, "charhelp") == 0)
+		Cmd_CharHelp(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

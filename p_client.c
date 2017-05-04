@@ -1121,7 +1121,7 @@ void PutClientInServer (edict_t *ent)
 	index = ent-g_edicts-1;
 	client = ent->client;
 
-	gi.centerprintf(ent, "G: Select Genji\nM: Select Winston\nH: Select Pharah");
+	gi.centerprintf(ent, "G: Select Genji\n M: Select Winston\n H: Select Pharah \nO: For Help and Detailed Description \nof Characters");
 
 	// deathmatch wipes most client data every spawn
 	if (deathmatch->value)
