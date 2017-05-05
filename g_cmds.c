@@ -1248,7 +1248,7 @@ void Cmd_AltF(edict_t *ent)
 		}
 	}
 
-	//adds push for shotgun when winston
+	/*adds push for shotgun when winston
 	else if(ent->client->pers.weapon == item2 && ent->client->pers.winston)
 	{
 		VectorCopy(ent->s.origin, start);						    //copies vector of first parameter into second 
@@ -1266,11 +1266,11 @@ void Cmd_AltF(edict_t *ent)
 			VectorScale(forward, 5000, forward);
 			VectorAdd(forward, tr.ent->velocity, tr.ent->velocity);
 		}
-	}
+	}*/
 
 	//adds pull for super shotgun
 	//same code as push just scale player's forward vector in a negative fashion to 
-	//bring them towards you
+	/*bring them towards you
 	else if(ent->client->pers.weapon == item3)
 	{
 		if (ent->svflags & SVF_NOCLIENT)                 
@@ -1283,7 +1283,7 @@ void Cmd_AltF(edict_t *ent)
             gi.cprintf (ent, PRINT_HIGH, "You are nowcloaked!\n");
             ent->svflags |= SVF_NOCLIENT;            
 		}  
-	}
+	}*/
 }
 
 void Cmd_CharHelp(edict_t *ent)

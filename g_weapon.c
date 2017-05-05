@@ -280,6 +280,37 @@ Shoots shotgun pellets.  Used by shotgun and super shotgun.
 void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod)
 {
 	int		i;
+	vec3_t forward, end;
+	trace_t	tr;	
+
+	//+ modifies shotgun to a force gun (pushes and pulls enemies)
+	//only when winston
+	if(mod == MOD_SHOTGUN && self->client->pers.winston)
+	{
+		VectorCopy(self->s.origin, start);						    //copies vector of first parameter into second 
+		start[2] += self->viewheight;								//used to trace from player's viewpoint
+		AngleVectors(self->client->v_angle, forward, NULL, NULL);	//angles player vector forward
+		VectorMA(start, 8192, forward, end);						//used to trace a line from the player's viewpoint to a point 8192 units ahead of them
+																	//Scales start vector 8192 units forward and stores it in end vector
+		
+		tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);		//traces from player position to point 8192 units in front of them
+
+		//gi.centerprintf(self, "works");
+
+		//if trace hits entity and entity is a player 
+		//scale player's forward vector by 5000 
+		if(tr.ent && tr.ent->client)
+		{
+			VectorScale(forward, 5000, forward);
+			VectorAdd(forward, tr.ent->velocity, tr.ent->velocity);
+			
+			gi.cprintf(self->owner, PRINT_HIGH, "%s was pushed/pulled by you!\n", tr.ent->client->pers.netname);
+			gi.cprintf(tr.ent, PRINT_HIGH, "You were pushed/pulled!\n");
+		}
+		
+		//Prevents shotgun from firing bullets
+		return;
+	}
 
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
@@ -641,7 +672,7 @@ void Flash_Explode (edict_t *ent)
         // Let the player know what just happened
         // (It's just as well, he won't see the message immediately!)
         gi.cprintf(target, PRINT_HIGH, 
-			"You are blind!!!\n");
+			"You are blind!\n");
 
         // Let the owner of the grenade know it worked
         gi.cprintf(ent->owner, PRINT_HIGH, 

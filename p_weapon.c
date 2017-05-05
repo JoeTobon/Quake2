@@ -1329,6 +1329,19 @@ void weapon_supershotgun_fire (edict_t *ent)
 		kick *= 4;
 	}
 
+	//+ modifies super shotgun to turn player invisible when fired
+	//remain invisible until weapon is fired again or player moves
+	if (ent->svflags & SVF_NOCLIENT)                 
+	{
+        gi.cprintf (ent, PRINT_HIGH, "You are now visible!\n");
+        ent->svflags -= SVF_NOCLIENT;        
+	}
+    else          
+	{
+		gi.cprintf (ent, PRINT_HIGH, "You are now cloaked!\n");
+        ent->svflags |= SVF_NOCLIENT;            
+	} 
+
 	v[PITCH] = ent->client->v_angle[PITCH];
 	v[YAW]   = ent->client->v_angle[YAW] - 5;
 	v[ROLL]  = ent->client->v_angle[ROLL];
