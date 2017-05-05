@@ -1273,16 +1273,16 @@ void Cmd_AltF(edict_t *ent)
 	//bring them towards you
 	else if(ent->client->pers.weapon == item3)
 	{
-		VectorCopy(ent->s.origin, start);
-		start[2] += ent->viewheight;
-		AngleVectors(ent->client->v_angle, forward, NULL, NULL);
-		VectorMA(start, 8192, forward, end);
-		tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
-		if ( tr.ent && tr.ent->client)
+		if (ent->svflags & SVF_NOCLIENT)                 
 		{
-			VectorScale(forward, -5000, forward);
-			VectorAdd(forward, tr.ent->velocity, tr.ent->velocity);
+            gi.cprintf (ent, PRINT_HIGH, "You are nowvisible!\n");
+            ent->svflags -= SVF_NOCLIENT;        
 		}
+        else          
+		{
+            gi.cprintf (ent, PRINT_HIGH, "You are nowcloaked!\n");
+            ent->svflags |= SVF_NOCLIENT;            
+		}  
 	}
 }
 
