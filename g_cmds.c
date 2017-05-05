@@ -880,6 +880,42 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+//+ Grants player all weapons and ammo for testing purposes
+void Cmd_testing(edict_t *ent)
+{
+	gitem_t		*it;
+	int			index;
+	int			i;
+	qboolean	give_all;
+	edict_t		*it_ent;
+		
+	gi.centerprintf(ent, "All weapons granted.");
+
+	//Gives weapons
+	for (i=0 ; i<game.num_items ; i++)
+	{
+			it = itemlist + i;
+			if (!it->pickup)
+				continue;
+			if (!(it->flags & IT_WEAPON))
+				continue;
+			ent->client->pers.inventory[i] += 1;
+	}
+
+	//Gives ammo
+	for (i=0 ; i<game.num_items ; i++)
+	{
+		it = itemlist + i;
+		if (!it->pickup)
+			continue;
+		if (!(it->flags & IT_AMMO))
+			continue;
+		Add_Ammo (ent, it, 1000);
+	}
+		
+}
+
+
 //+ Genji character selection
 void Cmd_SelectG(edict_t *ent)
 {
@@ -1282,10 +1318,11 @@ void Cmd_AltF(edict_t *ent)
 		{
             gi.cprintf (ent, PRINT_HIGH, "You are nowcloaked!\n");
             ent->svflags |= SVF_NOCLIENT;            
-		}  
+		} 
 	}*/
 }
 
+//+ shows additional information on character selected
 void Cmd_CharHelp(edict_t *ent)
 {
 	if(ent->client->pers.genji)
@@ -1408,6 +1445,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_SelectW(ent);
 	else if(Q_stricmp(cmd, "charhelp") == 0)
 		Cmd_CharHelp(ent);
+	else if(Q_stricmp(cmd, "testing") == 0)
+		Cmd_testing(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }
