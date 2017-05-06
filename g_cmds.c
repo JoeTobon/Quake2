@@ -1327,7 +1327,7 @@ void Cmd_CharHelp(edict_t *ent)
 {
 	if(ent->client->pers.genji)
 	{
-		gi.centerprintf(ent, "Genji Selected\n Q (Double Jump): Press to jump again \nwhen in the air. \n\n E (Dash): Press to dash while \non the ground.\n\n Weapons: Spawn with a three shot blaster\nand burst fire machine gun.");
+		gi.centerprintf(ent, "Genji Selected\n Q (Double Jump): Press to jump again \nwhen in the air. \n\n E (Dash): Press to dash while \non the ground.\n\nWeapons: Spawn with a three shot blaster\nand burst fire machine gun.");
 	}
 	else if(ent->client->pers.pharah)
 	{
